@@ -52,7 +52,8 @@ class Scan:
 
         self.scan_result = ScanResult()
         self.dialect = warehouse.dialect
-        self.qualified_table_name = self.dialect.qualify_table_name(scan_yml.table_name)
+        self.qualified_table_name = self.dialect.qualify_table_name(scan_yml.table_name) \
+            if self.dialect.type != 'sqlserver' else scan_yml.table_name
         self.scan_reference = None
         self.disable_sample_collection = False
         self.column_metadatas: List[ColumnMetadata] = []

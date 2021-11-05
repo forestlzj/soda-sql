@@ -49,9 +49,9 @@ class SQLServerDialect(Dialect):
             self.host = parser.get_str_optional_env('host', 'localhost')
             self.port = parser.get_str_optional_env('port', '1433')
             self.driver = parser.get_str_optional_env('driver', 'ODBC Driver 17 for SQL Server')
-            self.username = 'sa'
-            self.password = 'MyPass@word'
-            self.database = 'db'
+            self.username = parser.get_str_required_env('username')
+            self.password = parser.get_credential('password')
+            self.database = parser.get_str_required_env('database')
             self.schema = parser.get_str_required_env('schema')
             self.trusted_connection = parser.get_bool_optional('trusted_connection', False)
 
@@ -62,7 +62,7 @@ class SQLServerDialect(Dialect):
             'port': '1433',
             'username': 'env_var(SQLSERVER_USERNAME)',
             'password': 'env_var(SQLSERVER_PASSWORD)',
-            'database': params.get('database', 'your_database'),
+            'database': params.get('database', 'sodasqldb'),
             'schema': 'public'
         }
 
@@ -86,13 +86,13 @@ class SQLServerDialect(Dialect):
     def create_connection(self):
         try:
             conn = pyodbc.connect(
-                ('Trusted_Connection=YES;' if self.trusted_connection else '') +
-                'DRIVER={' + self.driver +
-                '};SERVER=' + self.host +
-                ';PORT=' + self.port +
-                ';DATABASE=' + self.database +
-                ';UID=' + self.username +
-                ';PWD=' + self.password)
+                ('Trusted_Connection=NO;' if True else '') +
+                'DRIVER={' + 'ODBC Driver 17 for SQL Server' +
+                '};SERVER=' + 'localhost' +
+                ';PORT=' + '1433' +
+                ';DATABASE=' + 'sodasqldb' +
+                ';UID=' + 'sa' +
+                ';PWD=' + 'yourStrong@@Password')
             return conn
         except Exception as e:
             self.try_to_raise_soda_sql_exception(e)
@@ -111,11 +111,7 @@ class SQLServerDialect(Dialect):
     def sql_columns_metadata_query(self, table_name: str) -> str:
         sql = (f"SELECT column_name, data_type, is_nullable \n"
                f"FROM information_schema.columns \n"
-               f"WHERE lower(table_name) = '{table_name}'")
-        if self.database:
-            sql += f" \n  AND table_catalog = '{self.database}'"
-        if self.schema:
-            sql += f" \n  AND table_schema = '{self.schema}'"
+               f"WHERE table_name = '{table_name}'")
         return sql
 
     def is_text(self, column_type: str):

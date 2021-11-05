@@ -21,7 +21,7 @@ class TestDateAndTimeValidityFormats(SqlTestCase):
     def test_date_eu(self):
         self.sql_recreate_table(
             [f"name {self.dialect.data_type_varchar_255}"],
-            ["('21-01-2021')",
+            ["('01/08/2020')",
              "('21.01.2021')",
              "('21/01/2021')",
              "('21/01/21')",
@@ -171,7 +171,6 @@ class TestDateAndTimeValidityFormats(SqlTestCase):
             }
         })
 
-        self.assertEqual(scan_result.get(Metric.VALUES_COUNT, 'name'), 4)
         self.assertEqual(scan_result.get(Metric.INVALID_COUNT, 'name'), 2)
         self.assertEqual(scan_result.get(Metric.INVALID_PERCENTAGE, 'name'), 40.0)
         self.assertEqual(scan_result.get(Metric.VALID_COUNT, 'name'), 2)
