@@ -156,8 +156,7 @@ class SQLServerDialect(Dialect):
 
     def sql_expr_count_conditional(self, condition: str, column):
         if "^\\s*$" in condition:
-            regex_whitespace = '\' %\''
-            return f'COUNT(CASE WHEN {column} NOT LIKE \'{regex_whitespace}\' THEN 1 END)'
+            return f'COUNT (CASE WHEN ltrim(rtrim({column})) != \'\' THEN 1 END)'
         elif "^$" in condition:
             regex_empty = '^%$'
             return f'COUNT (CASE WHEN {column} NOT LIKE \'{regex_empty}\' THEN 1 END)'
