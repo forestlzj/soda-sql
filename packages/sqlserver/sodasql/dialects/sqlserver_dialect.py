@@ -160,5 +160,8 @@ class SQLServerDialect(Dialect):
         elif "^$" in condition:
             regex_empty = '^%$'
             return f'COUNT (CASE WHEN {column} NOT LIKE \'{regex_empty}\' THEN 1 END)'
+        elif "'^\-?\d+([\.,]\d+)? ?%$'" in condition:
+            return f'COUNT (CASE WHEN {column} LIKE \'[0-9!-]%[%]\' AND {column} NOT LIKE \'%[a-z-A-Z#=@$?/][%]\' ' \
+                   f'THEN 1 END) '
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
