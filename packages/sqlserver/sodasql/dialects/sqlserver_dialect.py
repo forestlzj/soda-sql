@@ -160,11 +160,19 @@ class SQLServerDialect(Dialect):
         elif "^$" in condition:
             regex_empty = '^%$'
             return f'COUNT (CASE WHEN {column} NOT LIKE \'{regex_empty}\' THEN 1 END)'
+
         elif "'^\-?\d+([\.,]\d+)? ?%$'" in condition:
             return f'COUNT (CASE WHEN {column} LIKE \'[0-9!-]%[%]\' AND {column} NOT LIKE \'%[a-z-A-Z#=@$?/][%]\' ' \
-                   f'THEN 1 END) '
+                   f'THEN 1 END)'
+        #number_whole
         elif "^\-?[0-9]+$" in condition:
             condition = condition.replace('^\-?[0-9]+$', '[-0-9]%')
+            return f'COUNT(CASE WHEN {column} like \'[-0-9]%\' and {column} not like \'[-0-9][.,]%\' THEN 1 END)'
+        elif "^\-?[0-9]+,[0-9]+$" in condition:
+            condition = condition.replace('^\-?[0-9]+,[0-9]+$', '[-0-9][,0-9]%[0-9]%')
+            return f'COUNT(CASE WHEN {condition} THEN 1 END)'
+        elif "^\-?[0-9]+\.[0-9]+$" in condition:
+            condition = condition.replace('^\-?[0-9]+\.[0-9]+$', '[-0-9][.0-9]%[0-9]%')
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
