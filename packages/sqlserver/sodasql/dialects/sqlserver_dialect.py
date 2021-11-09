@@ -151,7 +151,15 @@ class SQLServerDialect(Dialect):
     def sql_expr_cast_text_to_number(self, quoted_column_name, validity_format):
         if validity_format == 'number_whole':
             return f"CAST({quoted_column_name} AS {self.data_type_decimal})"
-        not_number_pattern = self.qualify_regex(r"[^-\d\.\,]")
-        comma_pattern = self.qualify_regex(r"\,")
-        return f"CAST(REGEXP_REPLACE(REGEXP_REPLACE({quoted_column_name}, '{not_number_pattern}', '', 'g'), " \
-               f"'{comma_pattern}', '.', 'g') AS {self.data_type_decimal})"
+        return "CAST(Replace(Replace(Replace(Replace(numeric_varchar,',', ''), '.', ''), '-', ''), ',', " \
+               "'.') AS DECIMAL) "
+
+    def sql_expr_count_conditional(self, condition: str, column):
+        if "^\\s*$" in condition:
+            regex_whitespace = '\' %\''
+            return f'COUNT(CASE WHEN {column} NOT LIKE \'{regex_whitespace}\' THEN 1 END)'
+        elif "^$" in condition:
+            regex_empty = '^%$'
+            return f'COUNT (CASE WHEN {column} NOT LIKE \'{regex_empty}\' THEN 1 END)'
+        else:
+            return f'COUNT(CASE WHEN {condition} THEN 1 END)'
