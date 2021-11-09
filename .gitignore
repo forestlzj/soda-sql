@@ -138,3 +138,6 @@ reports/*
 # Spark
 .hive-metastore/
 .spark-warehouse/
+
+#trino
+.trino
