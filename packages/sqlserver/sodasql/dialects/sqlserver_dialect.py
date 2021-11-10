@@ -174,5 +174,23 @@ class SQLServerDialect(Dialect):
         elif "^\-?[0-9]+\.[0-9]+$" in condition:
             condition = condition.replace('^\-?[0-9]+\.[0-9]+$', '[-0-9][.0-9]%[0-9]%')
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
+        #phone number
+        elif "'^((\+[0-9]{1,2}\s)?\(?[0-9]{3}\)?[\s.-])?[0-9]{3}[\s.-][0-9]{4}$'" in condition:
+            return f'COUNT(CASE WHEN {column} like \'[+!0-9]%\' and {column} not like \'%[a-z!A-z]\' THEN 1 END)'
+        #date_eu
+        elif "^([1-9]|0[1-9]|[12][0-9]|3[01])[-\./]([1-9]|0[1-9]|1[012])[-\./](19|20)?[0-9][0-9]" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\' OR {column} LIKE \'[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\' OR {column} LIKE \'[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]\' THEN 1 END)'
+        #date_us
+        elif "^([1-9]|0[1-9]|1[012])[-\./]([1-9]|0[1-9]|[12][0-9]|3[01])[-\./](19|20)?[0-9][0-9]" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\' OR {column} LIKE \'[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\' OR {column} LIKE \'[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]\' THEN 1 END)'
+        elif "^(19|20)[0-9][0-9][-\./]?([1-9]|0[1-9]|1[012])[-\./]?([1-9]|0[1-9]|[12][0-9]|3[01])" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]\' OR {column} LIKE \'[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\' OR {column} LIKE \'[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]\' THEN 1 END)'
+        #time
+        elif "([0-9]|1[0-9]|2[0-4])[:-]([0-9]|[0-5][0-9])([:-]([0-9]|[0-5][0-9])(,[0-9]+)?)?$" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'%[010-9!20-3]:[0-5][0-9]%\' OR {column} LIKE \'%[010-9!20-3]-[0-5][0-9]%\' THEN 1 END)'
+        #ip_address
+        #TODO: find a better way to do this, way too much combinations to fit in SQLServer regex
+        elif "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'[0-9]%.%\' and {column} like \'[0-9].[0-9].[0-9].[0-9]\'  or {column} like \'[0-9][0-9].%\' or {column} like \'[0-9][0-9][0-9].%\' or {column} like \'[0-9][0-9][0-9].%\' THEN 1 END)'
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'

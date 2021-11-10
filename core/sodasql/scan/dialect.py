@@ -180,7 +180,7 @@ class Dialect:
     def sql_expr_count_all(self) -> str:
         return 'COUNT(*)'
 
-    def sql_expr_count_conditional(self, condition: str):
+    def sql_expr_count_conditional(self, condition: str, column: str):
         return f'COUNT(CASE WHEN {condition} THEN 1 END)'
 
     def sql_expr_conditional(self, condition: str, expr: str):
@@ -223,6 +223,7 @@ class Dialect:
         return f'SELECT * FROM {table_name} LIMIT {count}'
 
     def sql_expr_list(self, column: ColumnMetadata, values: List[str]) -> str:
+
         if self.is_text(column.data_type):
             sql_values = [self.literal_string(value) for value in values]
         elif self.is_number(column.data_type):
