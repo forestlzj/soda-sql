@@ -195,5 +195,7 @@ class SQLServerDialect(Dialect):
         #uuid
         elif "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$" in condition:
             return f'COUNT(CASE WHEN {column} LIKE \'[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\' THEN 1 END)'
+        elif "^[A-Za-z0-9.-_%]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'%[a-zA-Z0-9]_@[a-zA-Z0-9]%.[a-zA-Z0-9]%\' THEN 1 END)'
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'

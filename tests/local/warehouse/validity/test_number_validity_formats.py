@@ -306,7 +306,7 @@ class TestNumberValidityFormats(SqlTestCase):
         self.assertEqual(scan_result.get(Metric.VALID_COUNT, 'name'), 8)
         self.assertEqual(scan_result.get(Metric.VALID_PERCENTAGE, 'name'), 80.0)
 
-    def test_number_money(self):
+    def  test_number_money(self):
         self.sql_recreate_table(
             [f"name {self.dialect.data_type_varchar_255}"],
             ["('10,000,000,000 $')",
