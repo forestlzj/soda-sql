@@ -192,5 +192,8 @@ class SQLServerDialect(Dialect):
         #TODO: find a better way to do this, way too much combinations to fit in SQLServer regex
         elif "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$" in condition:
             return f'COUNT(CASE WHEN {column} LIKE \'[0-9]%.%\' and {column} like \'[0-9].[0-9].[0-9].[0-9]\'  or {column} like \'[0-9][0-9].%\' or {column} like \'[0-9][0-9][0-9].%\' or {column} like \'[0-9][0-9][0-9].%\' THEN 1 END)'
+        #uuid
+        elif "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$" in condition:
+            return f'COUNT(CASE WHEN {column} LIKE \'[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\' THEN 1 END)'
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
