@@ -197,5 +197,38 @@ class SQLServerDialect(Dialect):
             return f'COUNT(CASE WHEN {column} LIKE \'[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\' THEN 1 END)'
         elif "^[A-Za-z0-9.-_%]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$" in condition:
             return f'COUNT(CASE WHEN {column} LIKE \'%[a-zA-Z0-9]_@[a-zA-Z0-9]%.[a-zA-Z0-9]%\' THEN 1 END)'
+        #money patterns
+        #TODO: Generate using python code
+        elif "^(\$)? ?(\-)?([0-9]+[,])*([0-9]+)(\.[0-9]+)? ?(\$|usd|USD)?$" in condition:
+            return f'COUNT(CASE WHEN {column} like \'$[ 0-9,.-]%\' or {column} like \'[ 0-9,.-]%$\' ' \
+                   f'or {column} like \'[ 0-9,.-]%usd\' or {column} like \'[ 0-9,.-]%USD\' ' \
+                   f'or {column} like \'[ 0-9,.-]usd\' ' \
+                   f'or {column} like \'[ 0-9,.-]USD\' ' \
+                   f'THEN 1 END)'
+        elif "^(€)? ?(\-)?([0-9]+[ ])*([0-9]+)(,[0-9]+)? ?(€|eur|EUR)?$" in condition:
+            return f'COUNT(CASE WHEN {column} like \'€[ 0-9,.-]%\' or {column} like \'[ 0-9,.-]%€\' ' \
+                   f'or {column} like \'[ 0-9,.-]%eur\' or {column} like \'[ 0-9,.-]%EUR\' ' \
+                   f'or {column} like \'[ 0-9,.-]eur\' ' \
+                   f'or {column} like \'[ 0-9,.-]EUR\' ' \
+                   f'THEN 1 END)'
+        elif "^(£)? ?(\-)?([0-9]+[,])*([0-9]+)(\.[0-9]+)? ?(£|gbp|GBP)?$" in condition:
+            return f'COUNT(CASE WHEN {column} like \'£[ 0-9,.-]%\' or {column} like \'[ 0-9,.-]%£\' ' \
+                   f'or {column} like \'[ 0-9,.-]%gbp\' or {column} like \'[ 0-9,.-]%GBP\' ' \
+                   f'or {column} like \'[ 0-9,.-]gbp\' ' \
+                   f'or {column} like \'[ 0-9,.-]GBP\' ' \
+                   f'THEN 1 END)'
+        elif "^(¥)? ?(\-)?([0-9]+[,])*([0-9]+)(\.[0-9]+)? ?(¥|rmb|RMB)?$" in condition:
+            return f'COUNT(CASE WHEN {column} like \'¥[ 0-9,.-]%\' or {column} like \'[ 0-9,.-]%¥\' ' \
+                   f'or {column} like \'[ 0-9,.-]%rmb\' or {column} like \'[ 0-9,.-]%RMB\' ' \
+                   f'or {column} like \'[ 0-9,.-]rmb\' ' \
+                   f'or {column} like \'[ 0-9,.-]RMB\' ' \
+                   f'THEN 1 END)'
+        elif "^(CHf)? ?(\-)?([0-9]+[''])*([0-9]+)(\.[0-9]+)? ?(CHf|chf|CHF)?$" in condition:
+            return f'COUNT(CASE WHEN {column} like \'CHf[ 0-9,.-]%\' or {column} like \'[ 0-9,.-]%CHf\' ' \
+                   f'or {column} like \'[ 0-9,.-]%chf\' or {column} like \'[ 0-9,.-]%CHF\' ' \
+                   f'or {column} like \'[ 0-9,.-]chf\' ' \
+                   f'or {column} like \'[ 0-9,.-]CHF\' ' \
+                   f'THEN 1 END)'
+
         else:
             return f'COUNT(CASE WHEN {condition} THEN 1 END)'
